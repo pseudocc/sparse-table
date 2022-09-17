@@ -1,7 +1,7 @@
 #ifndef __SPARSE_TABLE_TEST_H
 #define __SPARSE_TABLE_TEST_H
 
-#include "../sparse-table.h"
+#include "../include/function-macro.h"
 
 typedef struct testcase testcase_t;
 
