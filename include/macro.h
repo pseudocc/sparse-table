@@ -12,6 +12,7 @@
     void* vp;                                                   \
     sparse_table(type) st;                                      \
     sparse_table(type) inst;                                    \
+    typeof(array) source = array;                               \
     type (*f)(type, type) = method;                             \
     size_t N = (size_t)n;                                       \
     if (N == 0)                                                 \
@@ -34,7 +35,7 @@
         free(inst);                                             \
         goto RETURN_NULL;                                       \
       }                                                         \
-      st[i][0] = (type)array[i];                                \
+      st[i][0] = (type)source[i];                               \
     }                                                           \
     for (int j = 1; j < K; j++)                                 \
       for (int i = 0; i + (1 << j) <= N; i++)                   \
@@ -53,12 +54,13 @@ RETURN_INST:                                                    \
 #define sparse_table_free(inst)                                 \
   do {                                                          \
     typeof(**inst) (*f)(typeof(**inst), typeof(**inst));        \
-    void* vp = inst + sizeof(f);                                \
+    void* alloc_p = inst;                                       \
+    void* vp = alloc_p + sizeof(f);                             \
     size_t N = *(size_t*)vp;                                    \
-    typeof(inst) st = vp + sizeof(size_t);                      \
+    typeof(inst) st = vp + sizeof(N);                           \
     for (size_t i = 0; i < N; i++)                              \
       free(st[i]);                                              \
-    free(inst);                                                 \
+    free(alloc_p);                                              \
   } while (0)
 
 /**
