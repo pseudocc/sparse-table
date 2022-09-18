@@ -1,10 +1,7 @@
 #ifndef __SPARSE_TABLE_H
 #define __SPARSE_TABLE_H
 
-#include <stdlib.h>
-#include <assert.h>
-
-#define sparse_table(type) type**
+#include "./common.h"
 
 /**
  * Constructor
@@ -27,7 +24,7 @@
     *(void**)vp = f;                                            \
     vp += sizeof(f);                                            \
     *(size_t*)vp = N;                                           \
-    vp += sizeof(size_t);                                       \
+    vp += sizeof(N);                                            \
     st = vp;                                                    \
     for (size_t i = 0; i < N; i++) {                            \
       st[i] = malloc(sizeof(type) * K);                         \
@@ -37,7 +34,7 @@
         free(inst);                                             \
         goto RETURN_NULL;                                       \
       }                                                         \
-      st[i][0] = array[i];                                      \
+      st[i][0] = (type)array[i];                                \
     }                                                           \
     for (int j = 1; j < K; j++)                                 \
       for (int i = 0; i + (1 << j) <= N; i++)                   \
@@ -63,6 +60,10 @@ RETURN_INST:                                                    \
       free(st[i]);                                              \
     free(inst);                                                 \
   } while (0)
+
+/**
+ * Member functions
+ **/
 
 #define sparse_table_query(inst, l, r)                          \
   ({                                                            \
