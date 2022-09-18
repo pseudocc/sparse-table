@@ -22,9 +22,10 @@ sparse_table_t sparse_table_new(source_t* array, size_t n_elems, method_t method
   sparse_table_t inst = malloc(sizeof(method) + sizeof(n_elems) + sizeof(elem_t*) * n_elems);
   if (inst == NULL)
     return NULL;
-  
+
   inst->f = method;
   inst->N = n_elems;
+  inst->st = malloc(sizeof(elem_t*) * n_elems);
   sparse_table(elem_t) st = inst->st;
 
   for (size_t i = 0; i < n_elems; i++) {
@@ -32,6 +33,7 @@ sparse_table_t sparse_table_new(source_t* array, size_t n_elems, method_t method
     if (st[i] == NULL) {
       while (i--)
         free(st[i]);
+      free(st);
       free(inst);
       return NULL;
     }
@@ -52,6 +54,8 @@ void sparse_table_free(sparse_table_t inst) {
     free(inst->st[i]);
     inst->st[i] = NULL;
   }
+  free(inst->st);
+  inst->st = NULL;
 
   free(inst);
 }
