@@ -12,7 +12,7 @@ typedef elem_t (*method_t)(elem_t, elem_t);
 struct opaque {
   method_t f;
   size_t N;
-  sparse_table(elem_t) st;
+  elem_t* st0;
 };
 
 sparse_table_t sparse_table_new(source_t* array, size_t n_elems, method_t method) {
@@ -25,15 +25,14 @@ sparse_table_t sparse_table_new(source_t* array, size_t n_elems, method_t method
 
   inst->f = method;
   inst->N = n_elems;
-  inst->st = malloc(sizeof(elem_t*) * n_elems);
-  sparse_table(elem_t) st = inst->st;
+  sparse_table(elem_t) st = &inst->st0;
 
   for (size_t i = 0; i < n_elems; i++) {
     st[i] = malloc(sizeof(elem_t) * K);
     if (st[i] == NULL) {
       while (i--)
         free(st[i]);
-      free(st);
+      //free(st);
       free(inst);
       return NULL;
     }
@@ -49,28 +48,27 @@ sparse_table_t sparse_table_new(source_t* array, size_t n_elems, method_t method
 void sparse_table_free(sparse_table_t inst) {
   if (inst == NULL)
     return;
-  
-  for (size_t i = 0; i < inst->N; i++) {
-    free(inst->st[i]);
-    inst->st[i] = NULL;
-  }
-  free(inst->st);
-  inst->st = NULL;
+
+  sparse_table(elem_t) st = &inst->st0;
+  for (size_t i = 0; i < inst->N; i++)
+    free(st[i]);
 
   free(inst);
 }
 
 elem_t sparse_table_query(sparse_table_t inst, size_t l, size_t r) {
+  sparse_table(elem_t) st = &inst->st0;
   int j = 63 - __builtin_clzll(r - l + 1);
-  return inst->f(inst->st[l][j], inst->st[r-(1<<j)+1][j]);
+  return inst->f(st[l][j], st[r-(1<<j)+1][j]);
 }
 
 elem_t sparse_table_accum(sparse_table_t inst, size_t l, size_t r, elem_t initial) {
+  sparse_table(elem_t) st = &inst->st0;
   elem_t result = initial;
   int K = 63 - __builtin_clzll(inst->N);
   for (int j = K; j >= 0; j--) {
     if ((1 << j) <= r - l + 1) {
-      result = inst->f(result, inst->st[l][j]);
+      result = inst->f(result, st[l][j]);
       l += 1 << j;
     }
   }

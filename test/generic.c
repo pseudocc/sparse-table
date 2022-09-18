@@ -38,6 +38,7 @@ int maxima() {
     }
   }
 
+  sparse_table_free(st);
   return 0;
 }
 
@@ -78,5 +79,6 @@ int xor() {
     }
   }
 
+  sparse_table_free(st);
   return 0;
 }
