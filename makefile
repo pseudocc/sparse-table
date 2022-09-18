@@ -35,6 +35,6 @@ unit-test: $(TEST_OBJ)
 	$(LD) -o $@ $^
 
 clean:
-	rm -f *.o *.so $(TEST_OBJ)
+	rm -f *.o *.so $(TEST_OBJ) unit-test
 
 .PHONY: clean
